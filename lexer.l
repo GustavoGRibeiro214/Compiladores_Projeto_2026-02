@@ -510,3 +510,40 @@ other		.
 
 /*-------------------- User subroutines --------------------*/
 
+int main(int argc, char *argv[]) {
+
+    /* Verificar se o arquivo foi informado */
+    if (argc < 2) {
+        printf("Uso: %s arquivo.txt\n", argv[0]);
+        return 1;
+    }
+
+    /* Abrir o arquivo de entrada */
+    yyin = fopen(argv[1], "r");
+
+    if (yyin == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return 1;
+    }
+
+    /* Definir a saida dos resultados */
+    yyout = stdout;
+
+    /* Executar o analisador sintatico do Bison */
+    int resultado = yyparse();
+
+    /* Exibir a tabela de simbolos */
+    exibirTabela();
+
+    /* Fechar o arquivo */
+    fclose(yyin);
+
+    return resultado;
+}
+
+/*Passa a Coluna e a linha para o Parser para informar no erro sintatico*/
+void yyerror(const char *s) {
+    fprintf(stderr,
+        "Erro sintatico na linha %d, coluna %d: %s\n",
+        token_line, token_column, s);
+}
