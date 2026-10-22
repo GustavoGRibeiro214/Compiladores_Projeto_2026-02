@@ -10,7 +10,8 @@ void yyerror(const char *s);
 %token INT FLOAT ID INT_NUMBER FLOAT_NUMBER
 %token IF ELSE WHILE PRINT READ
 %token PLUS MINUS MULT DIV MOD
-%token ATTRIBUTION AND OR NOT RELOP
+%token ATTRIBUTION AND OR NOT
+%token GT LT GE LE EE NE
 %token SEMI COMMA
 %token OPEN_PARENTHESES CLOSE_PARENTHESES
 %token OPEN_BRACES CLOSE_BRACES
@@ -37,6 +38,14 @@ attri : INT_NUMBER SEMI
       | ID SEMI
       ;
 
+/*Operadores Relacionais*/
+relop : GT
+      | LT
+      | GE
+      | LE
+      | EE
+      | NE
+      ;
 
 type : INT | FLOAT
      ;

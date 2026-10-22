@@ -311,14 +311,30 @@ other		.
 %}
 
 ">="|"<="|"=="|"!="|">"|"<" {
-	token_column = column_number;
-    	token_line = yylineno;
+    token_column = column_number;
+    token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: RELOP | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
+    fprintf(yyout, "TOKEN: RELOP | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
+            yytext, yylineno, column_number);
 
-	column_number += yyleng;
-	return RELOP;
+    column_number += yyleng;
+    /*Retorna o Respectivo Token para o Bison*/
+    if (yyleng == 2) {
+        if (yytext[0] == '>')
+            return GE;
+        else if (yytext[0] == '<')
+            return LE;
+        else if (yytext[0] == '=')
+            return EE;
+        else
+            return NE;
+    }
+    else {
+        if (yytext[0] == '>')
+            return GT;
+        else if (yytext[0] == '<')
+            return LT;
+    }
 }
 
 %{
