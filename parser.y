@@ -24,24 +24,19 @@ declaracao : decl
 	   ;
  
 decl : type ID list
-     /*Atribuição junto ao tipo*/
-     | type ID attri
-     /*Atribuição depois da definição do tipo*/      
-     | ID attri
+     /*Atribuição de Variaveis*/
+     | type ID ATTRIBUTION attri
+     | ID ATTRIBUTION attri
      /*Encontra o erro mas não para o programa*/
      | error SEMI { yyerrok; }
-
      ;
 
 /*Atribuição*/
-attri : ATTRIBUTION expr SEMI
-     ;
+attri : INT_NUMBER SEMI
+      | FLOAT_NUMBER SEMI
+      | ID SEMI
+      ;
 
-expr : 
-
-/*condicionais*/
-
-cond : IF OPEN_PARENTHESES CLOSE_PARENTHESES
 
 type : INT | FLOAT
      ;
