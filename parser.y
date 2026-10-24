@@ -18,25 +18,48 @@ void yyerror(const char *s);
 
 %%
 
-/*Declaração de tipos*/
+/* Todos os comandos passam por aqui */
 
-declaracao : decl
-	   | declaracao decl
-	   ;
- 
+comandos : comando
+         | comandos comando
+         ;
+
+comando : decl
+        | condicionais
+        ;
+
+/* Declaracoes e atribuicoes */
+
 decl : type ID list
-     /*Atribuição de Variaveis*/
-     | type ID ATTRIBUTION attri
-     | ID ATTRIBUTION attri
-     /*Encontra o erro mas não para o programa*/
+     | type ID ATTRIBUTION attri SEMI
+     | ID ATTRIBUTION attri SEMI
      | error SEMI { yyerrok; }
      ;
 
-/*Atribuição*/
-attri : INT_NUMBER SEMI
-      | FLOAT_NUMBER SEMI
-      | ID SEMI
+/* Valores usados nas atribuicoes */
+
+attri : INT_NUMBER
+      | FLOAT_NUMBER
+      | ID
       ;
+
+/* Blocos de comandos */
+
+bloco : /* vazio */
+      | comandos
+      ;
+
+/* Condicionais IF e ELSE */
+
+condicionais : IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES OPEN_BRACES bloco CLOSE_BRACES
+    	     | IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES OPEN_BRACES bloco CLOSE_BRACES ELSE OPEN_BRACES bloco CLOSE_BRACES
+	     ;
+
+/*EXPRESSÕES CONDICIONAIS servem para a definir as condições no IF/ELSE E WHILE*/
+expr_cond : ID relop INT_NUMBER
+	  | ID relop FLOAT_NUMBER
+	  | ID relop ID
+	  ;
 
 /*Operadores Relacionais*/
 relop : GT
