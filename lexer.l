@@ -486,6 +486,13 @@ other		.
 }
 
 {multcomennt_sem_fechamento} {
+    /* Só executa a ação depois de casar o comentário inteiro */
+    int linha_inicio = yylineno;
+    for (int i = 0; i < yyleng; i++) {
+        if (yytext[i] == '\n') {
+            linha_inicio--;
+        }
+    }
     fprintf(yyout,
         "Erro: comentario de multiplas linhas iniciado "
         "na linha %d e coluna %d nao foi fechado.\n",
