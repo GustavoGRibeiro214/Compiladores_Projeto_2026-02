@@ -46,6 +46,8 @@ comando : decl
         | atrib
         | cond
         | loop
+        | print
+        | read
         | error SEMI { yyerrok; }
         ;
 
@@ -83,6 +85,16 @@ cond : IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES OPEN_BRACES bloco CLOSE_B
 
 /* Loop while */
 loop : WHILE OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES OPEN_BRACES bloco CLOSE_BRACES
+     ;
+
+/* Print */
+
+print : PRINT OPEN_PARENTHESES expr_ari CLOSE_PARENTHESES SEMI
+      ;
+
+/* Read */
+
+read : READ OPEN_PARENTHESES expr_ari CLOSE_PARENTHESES SEMI
      ;
 
 /* EXPRESSÕES CONDICIONAIS servem para a definir as condições no IF/ELSE E WHILE */
