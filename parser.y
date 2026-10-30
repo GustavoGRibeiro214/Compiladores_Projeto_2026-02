@@ -48,6 +48,7 @@ comando : decl
         | loop
         | print
         | read
+	| bloco_sep
         | error SEMI { yyerrok; }
         ;
 
@@ -77,9 +78,9 @@ operando : ID
 
 /* Condicionais IF e ELSE */
 
-cond : IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES OPEN_BRACES bloco CLOSE_BRACES
+cond : IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES bloco_sep
      /* IF e ELSE casado */
-     | IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES OPEN_BRACES bloco CLOSE_BRACES ELSE OPEN_BRACES bloco CLOSE_BRACES
+     | IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES bloco_sep ELSE bloco_sep
      ;
 
 
@@ -96,6 +97,11 @@ print : PRINT OPEN_PARENTHESES expr_ari CLOSE_PARENTHESES SEMI
 
 read : READ OPEN_PARENTHESES expr_ari CLOSE_PARENTHESES SEMI
      ;
+
+/* bloco de chaves separado */
+
+bloco_sep : OPEN_BRACES bloco CLOSE_BRACES
+          ;
 
 /* EXPRESSÕES CONDICIONAIS servem para a definir as condições no IF/ELSE E WHILE */
 
