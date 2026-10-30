@@ -14,14 +14,28 @@ if [ ! -f "$FONTE" ]; then
 fi
 
 ARQUIVO_FLEX="lexer.l"
+ARQUIVO_BISON="parser.y"
 
 if [ ! -f "$ARQUIVO_FLEX" ]; then
     echo "Erro: O arquivo '$ARQUIVO_FLEX' não foi encontrado."
     exit 1
 fi
 
+if [ ! -f "$ARQUIVO_BISON" ]; then
+    echo "Erro: O arquivo '$ARQUIVO_BISON' não foi encontrado."
+    exit 1
+fi
+
+echo "==> Gerando o analisador sintático com Bison..."
+bison -d -o parser.tab.c parser.y
+
+if [ $? -ne 0 ]; then
+    echo "Erro durante a execução do Bison."
+    exit 1
+fi
+
 echo "==> Gerando o analisador léxico com Flex..."
-flex "$ARQUIVO_FLEX"
+flex -o scanner.yy.c lexer.l
 
 if [ $? -ne 0 ]; then
     echo "Erro durante a execução do Flex."
@@ -29,7 +43,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "==> Compilando o código C..."
-gcc lex.yy.c -o compilador
+gcc -o main parser.tab.c scanner.yy.c -lfl
 
 if [ $? -ne 0 ]; then
     echo "Erro durante a compilação com GCC."
@@ -39,8 +53,8 @@ fi
 echo "==> Executando o analisador em '$FONTE'..."
 echo "----------------------------------------"
 
-./compilador "$FONTE"
+./main "$FONTE"
 
 echo "----------------------------------------"
 
-rm -f lex.yy.c compilador
+rm -f parser.tab.c parser.tab.h scanner.yy.c main
