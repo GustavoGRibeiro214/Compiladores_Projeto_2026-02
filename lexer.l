@@ -11,8 +11,13 @@ int yyparse(void);
 
 int column_number = 1;
 
+/* Retornam a coluna e a linha do erro sintatico */
 int token_column = 1;
 int token_line = 1;
+
+/* Retorna no Caso de Erro */
+int erro_sintatico = 0;
+int erro_lexico = 0;
 
 typedef struct {
 
@@ -112,9 +117,6 @@ other		.
 "int" {
 	token_column = column_number;
     	token_line = yylineno;
-	
-	fprintf(yyout, "TOKEN: TYPE | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return INT;
@@ -123,9 +125,6 @@ other		.
 "float" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: TYPE | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return FLOAT;
@@ -139,9 +138,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: IF | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return IF;
 }
@@ -150,9 +146,6 @@ other		.
 "else" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: ELSE | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return ELSE;
@@ -163,9 +156,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: WHILE | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return WHILE;
 }
@@ -175,9 +165,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: PRINT | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return PRINT;
 }
@@ -186,9 +173,6 @@ other		.
 "read" {	
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: READ | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return READ;
@@ -202,9 +186,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: PLUS | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return PLUS;
 }
@@ -212,9 +193,6 @@ other		.
 "-" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: MINUS | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return MINUS;
@@ -225,9 +203,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: MULT | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return MULT;
 }
@@ -236,9 +211,6 @@ other		.
 "/" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: DIV | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return DIV;
@@ -249,9 +221,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: MOD | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return MOD;
 }
@@ -259,9 +228,6 @@ other		.
 "=" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: ATTRIBUTION | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return ATTRIBUTION;
@@ -276,9 +242,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: AND | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return AND;
 }
@@ -286,9 +249,6 @@ other		.
 "or"|"||" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: OR | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return OR;
@@ -298,9 +258,6 @@ other		.
 "not"|"!" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: NOT | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return NOT;
@@ -313,9 +270,6 @@ other		.
 ">="|"<="|"=="|"!="|">"|"<" {
     token_column = column_number;
     token_line = yylineno;
-
-    fprintf(yyout, "TOKEN: RELOP | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-            yytext, yylineno, column_number);
 
     column_number += yyleng;
     /*Retorna o Respectivo Token para o Bison*/
@@ -345,9 +299,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: ID | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	buscaNaTabela(yytext);
 
 	column_number += yyleng;
@@ -362,9 +313,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: FLOAT_NUMBER | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return FLOAT_NUMBER;
 }
@@ -373,9 +321,6 @@ other		.
 {int_number} {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: INT_NUMBER | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 
 	column_number += yyleng;
@@ -390,9 +335,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: SEMICOLON | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return SEMI;
 }
@@ -401,9 +343,6 @@ other		.
 "," {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: COMMA | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return COMMA;
@@ -414,9 +353,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: OPEN_PARENTHESES | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return OPEN_PARENTHESES;
 }
@@ -425,9 +361,6 @@ other		.
 ")" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: CLOSE_PARENTHESES | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return CLOSE_PARENTHESES;
@@ -438,9 +371,6 @@ other		.
 	token_column = column_number;
     	token_line = yylineno;
 
-	fprintf(yyout, "TOKEN: OPEN_BRACES | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
-
 	column_number += yyleng;
 	return OPEN_BRACES;
 }
@@ -449,9 +379,6 @@ other		.
 "}" {
 	token_column = column_number;
     	token_line = yylineno;
-
-	fprintf(yyout, "TOKEN: CLOSE_BRACES | LEXEMA: %s | LINHA: %d | COLUNA: %d\n",
-	yytext, yylineno, column_number);
 
 	column_number += yyleng;
 	return CLOSE_BRACES;
@@ -486,6 +413,8 @@ other		.
 }
 
 {multcomennt_sem_fechamento} {
+    erro_lexico = 1;
+
     /* Só executa a ação depois de casar o comentário inteiro */
     int linha_inicio = yylineno;
     for (int i = 0; i < yyleng; i++) {
@@ -520,6 +449,8 @@ other		.
 %}
 
 {other} {
+	erro_lexico = 1;
+	
 	fprintf(yyout,
 		"Lexical error on line %d and column %d. Input -> \"%s\"\n",
 		yylineno, column_number, yytext);
@@ -558,14 +489,25 @@ int main(int argc, char *argv[]) {
     /* Exibir a tabela de simbolos */
     exibirTabela();
 
+    /* Verificar se a analise foi realizada sem erros */
+    if (erro_sintatico == 0) {
+        printf("Analise sintatica realizada com sucesso.\n");
+    }
+
+    if (erro_lexico == 0) {
+        printf("Analise lexica realizada com sucesso.\n");
+    }
+
     /* Fechar o arquivo */
     fclose(yyin);
 
     return resultado;
 }
 
-/*Passa a Coluna e a linha para o Parser para informar no erro sintatico*/
+/*Passa para a linha e coluna para informar o erro sintatico*/
 void yyerror(const char *s) {
+    erro_sintatico = 1;
+
     fprintf(stderr,
         "Erro sintatico na linha %d, coluna %d: %s\n",
         token_line, token_column, s);
