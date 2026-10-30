@@ -46,6 +46,7 @@ comando : decl
         | atrib
         | cond
         | loop
+	| OPEN_BRACES bloco CLOSE_BRACES   /* bloco solto entre chaves solto*/
         | error SEMI { yyerrok; }
         ;
 
@@ -72,6 +73,11 @@ operando : ID
 	 | FLOAT_NUMBER 
 	 ;
 
+
+/* Entrada e Saída (Print/Read)*/
+
+io	: PRINT OPEN_PARENTHESES ID CLOSE_PARENTHESES SEMI
+	| READ OPEN_PARENTHESES 
 
 /* Condicionais IF e ELSE */
 
