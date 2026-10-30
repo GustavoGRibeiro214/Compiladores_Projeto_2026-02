@@ -11,8 +11,13 @@ int yyparse(void);
 
 int column_number = 1;
 
+/* Guarda as posições dos erros sintaticos */
 int token_column = 1;
 int token_line = 1;
+
+/* Variaveis de Erro para caso haja um erro lexico ou sintatico */
+int erro_sintatico = 0;
+int erro_lexico = 0;
 
 typedef struct {
 
@@ -411,6 +416,8 @@ other		.
 }
 
 {multcomennt_sem_fechamento} {
+    erro_lexico = 1;
+
     /* Só executa a ação depois de casar o comentário inteiro */
     int linha_inicio = yylineno;
     for (int i = 0; i < yyleng; i++) {
@@ -444,11 +451,13 @@ other		.
 %}
 
 {other} {
-	fprintf(yyout,
-		"Lexical error on line %d and column %d. Input -> \"%s\"\n",
-		yylineno, column_number, yytext);
+    	erro_lexico = 1;
 
-	column_number += yyleng;
+    	fprintf(yyout,
+        	"Erro lexico na linha %d e coluna %d. Entrada: \"%s\"\n",
+        	yylineno, column_number, yytext);
+
+    	column_number += yyleng;
 }
 
 
@@ -482,14 +491,24 @@ int main(int argc, char *argv[]) {
     /* Exibir a tabela de simbolos */
     exibirTabela();
 
+    /* Verificar se a analise foi realizada sem erros Lexicos ou Sintaticos */
+    if (erro_lexico == 0) {
+        printf("Analise Lexica realizada com sucesso, sem nenhum erro.\n");
+    }
+    if (erro_sintatico == 0) {
+        printf("Analise sintatica realizada com sucesso, sem nenhum erro.\n");
+    }
+
     /* Fechar o arquivo */
     fclose(yyin);
 
     return resultado;
 }
 
-/*Passa a Coluna e a linha para o Parser para informar no erro sintatico*/
+/*Passa para o Parser para informar no erro sintatico*/
 void yyerror(const char *s) {
+    erro_sintatico = 1;
+
     fprintf(stderr,
         "Erro sintatico na linha %d, coluna %d: %s\n",
         token_line, token_column, s);
