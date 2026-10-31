@@ -81,6 +81,46 @@ int exibirTabela () {
 	return -1;
 }
 
+/* Lexema do token atual e do anterior (usados nas mensagens de erro).
+   Guardamos o TAMANHO de cada lexema em vez de depender do fim de string. */
+char lexema_atual[64];
+char lexema_anterior[64];
+int  tam_atual = 0;            /* caracteres guardados do token atual */
+int  tam_anterior = 0;         /* caracteres guardados do token anterior */
+int  tam_real_atual = 0;       /* tamanho real do token atual (yyleng) */
+int  linha_anterior = 1;       /* onde o token anterior terminou */
+int  coluna_fim_anterior = 1;
+
+/* Chamada no inicio da ação de cada token */
+void registrar_token(void) {
+	int i;
+
+	/* O token atual passa a ser o anterior */
+	linha_anterior      = token_line;
+	coluna_fim_anterior = token_column + tam_real_atual;
+	tam_anterior        = tam_atual;
+
+	for (i = 0; i < tam_atual; i++) {
+		lexema_anterior[i] = lexema_atual[i];
+	}
+
+	/* Registra o novo token atual (guarda no maximo 63 caracteres) */
+	token_line     = yylineno;
+	token_column   = column_number;
+	tam_real_atual = yyleng;
+
+	if (yyleng < 63) {
+		tam_atual = yyleng;
+	} else {
+		tam_atual = 63;
+	}
+	for (i = 0; i < tam_atual; i++) {
+		lexema_atual[i] = yytext[i];
+	}
+
+	column_number += yyleng;
+}
+
 
 %}
 
@@ -115,18 +155,12 @@ other		.
 %}
 
 "int" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return INT;
 }
 
 "float" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return FLOAT;
 }
 
@@ -135,46 +169,31 @@ other		.
 %}
 
 "if" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return IF;
 }
 
 
 "else" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return ELSE;
 }
 
 
 "while" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return WHILE;
 }
 
 
 "print" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return PRINT;
 }
 
 
 "read" {	
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return READ;
 }
 
@@ -183,53 +202,35 @@ other		.
 %}
 
 "+" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return PLUS;
 }
 
 "-" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return MINUS;
 }
 
 
 "*" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return MULT;
 }
 
 
 "/" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return DIV;
 }
 
 
 "%" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return MOD;
 }
 
 "=" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return ATTRIBUTION;
 }
 
@@ -239,27 +240,18 @@ other		.
 %}
 
 "and"|"&&" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return AND;
 }
 
 "or"|"||" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return OR;
 }
 
 
 "not"|"!" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return NOT;
 }
 
@@ -268,10 +260,7 @@ other		.
 %}
 
 ">="|"<="|"=="|"!="|">"|"<" {
-    token_column = column_number;
-    token_line = yylineno;
-
-    column_number += yyleng;
+    registrar_token();
     /*Retorna o Respectivo Token para o Bison*/
     if (yyleng == 2) {
         if (yytext[0] == '>')
@@ -296,12 +285,12 @@ other		.
 %}
 
 {ID} {
-	token_column = column_number;
-    	token_line = yylineno;
+	registrar_token();
 
-	buscaNaTabela(yytext);
-
-	column_number += yyleng;
+	/* So insere na tabela se o nome couber no buffer (50 posicoes) */
+	if (yyleng < 50) {
+		buscaNaTabela(yytext);
+	}
 	return ID;
 }
 
@@ -310,20 +299,13 @@ other		.
 %}
 
 {float_number} {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return FLOAT_NUMBER;
 }
 
 
 {int_number} {
-	token_column = column_number;
-    	token_line = yylineno;
-
-
-	column_number += yyleng;
+	registrar_token();
 	return INT_NUMBER;
 }
 
@@ -332,55 +314,37 @@ other		.
 %}
 
 ";" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return SEMI;
 }
 
 
 "," {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return COMMA;
 }
 
 
 "(" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return OPEN_PARENTHESES;
 }
 
 
 ")" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return CLOSE_PARENTHESES;
 }
 
 
 "{" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return OPEN_BRACES;
 }
 
 
 "}" {
-	token_column = column_number;
-    	token_line = yylineno;
-
-	column_number += yyleng;
+	registrar_token();
 	return CLOSE_BRACES;
 }
 
@@ -494,14 +458,14 @@ int main(int argc, char *argv[]) {
         printf("Analise sintatica realizada com sucesso.\n");
     }
     else {
-    	printf("Análise sintática encontrou erro(s).\n");
+        printf("Analise sintatica encontrou erro(s).\n");
     }
 
     if (erro_lexico == 0) {
         printf("Analise lexica realizada com sucesso.\n");
     }
     else {
-    	printf("Análise lexica encontrou erro(s).\n");
+        printf("Analise lexica encontrou erro(s).\n");
     }
 
     /* Fechar o arquivo */
@@ -510,11 +474,20 @@ int main(int argc, char *argv[]) {
     return resultado;
 }
 
-/*Passa para a linha e coluna para informar o erro sintatico*/
+/* Informa linha, coluna e token inesperado do erro sintatico */
 void yyerror(const char *s) {
     erro_sintatico = 1;
 
     fprintf(stderr,
-        "Erro sintatico na linha %d, coluna %d: %s\n",
-        token_line, token_column, s);
+        "Erro sintatico na linha %d, coluna %d: %s, "
+        "token inesperado '%.*s'\n",
+        token_line, token_column, s, tam_atual, lexema_atual);
+
+    /* Aponta onde o token anterior terminou (util quando falta ';') */
+    if (tam_anterior > 0) {
+        fprintf(stderr,
+            "  (token anterior: '%.*s', terminou na linha %d, coluna %d)\n",
+            tam_anterior, lexema_anterior,
+            linha_anterior, coluna_fim_anterior);
+    }
 }
