@@ -1,4 +1,4 @@
-%option noyywrap yylineno
+%option yylineno
 
 %{
 
@@ -90,8 +90,9 @@ int  tam_anterior = 0;         /* caracteres guardados do token anterior */
 int  tam_real_atual = 0;       /* tamanho real do token atual (yyleng) */
 int  linha_anterior = 1;       /* onde o token anterior terminou */
 int  coluna_fim_anterior = 1;
+int  fim_de_arquivo = 0;       /* 1 quando o parser chegou ao fim do arquivo */
 
-/* Chamada no inicio da ação de cada token */
+/* Chamada no inicio da acao de cada token */
 void registrar_token(void) {
 	int i;
 
@@ -99,7 +100,6 @@ void registrar_token(void) {
 	linha_anterior      = token_line;
 	coluna_fim_anterior = token_column + tam_real_atual;
 	tam_anterior        = tam_atual;
-
 	for (i = 0; i < tam_atual; i++) {
 		lexema_anterior[i] = lexema_atual[i];
 	}
@@ -108,7 +108,6 @@ void registrar_token(void) {
 	token_line     = yylineno;
 	token_column   = column_number;
 	tam_real_atual = yyleng;
-
 	if (yyleng < 63) {
 		tam_atual = yyleng;
 	} else {
@@ -474,14 +473,47 @@ int main(int argc, char *argv[]) {
     return resultado;
 }
 
+/* Chamada pelo Flex ao chegar no fim do arquivo (antes do parser receber o fim de entrada). Registra "fim do arquivo" como o token atual, para o
+   erro sintatico nao apontar para o ultimo token real. */
+int yywrap(void) {
+    int i;
+
+    if (fim_de_arquivo == 0) {
+        fim_de_arquivo = 1;
+
+        /* O ultimo token real passa a ser o anterior */
+        linha_anterior = token_line;
+        coluna_fim_anterior = token_column + tam_real_atual;
+        tam_anterior = tam_atual;
+        for (i = 0; i < tam_atual; i++) {
+            lexema_anterior[i] = lexema_atual[i];
+        }
+
+        /* O fim do arquivo comeca onde o ultimo texto terminou */
+        token_line     = yylineno;
+        token_column   = column_number;
+        tam_atual      = 0;
+        tam_real_atual = 0;
+    }
+
+    return 1;
+}
+
 /* Informa linha, coluna e token inesperado do erro sintatico */
 void yyerror(const char *s) {
     erro_sintatico = 1;
 
-    fprintf(stderr,
-        "Erro sintatico na linha %d, coluna %d: %s, "
-        "token inesperado '%.*s'\n",
-        token_line, token_column, s, tam_atual, lexema_atual);
+    if (fim_de_arquivo == 1) {
+        fprintf(stderr,
+            "Erro sintatico na linha %d, coluna %d: %s, "
+            "fim do arquivo inesperado\n",
+            token_line, token_column, s);
+    } else {
+        fprintf(stderr,
+            "Erro sintatico na linha %d, coluna %d: %s, "
+            "token inesperado '%.*s'\n",
+            token_line, token_column, s, tam_atual, lexema_atual);
+    }
 
     /* Aponta onde o token anterior terminou (util quando falta ';') */
     if (tam_anterior > 0) {
