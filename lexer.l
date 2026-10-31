@@ -425,7 +425,7 @@ other		.
     fprintf(yyout,
         "Erro: comentario de multiplas linhas iniciado "
         "na linha %d e coluna %d nao foi fechado.\n",
-        yylineno, column_number);
+        linha_inicio, column_number);
 }
 
 %{
@@ -493,9 +493,15 @@ int main(int argc, char *argv[]) {
     if (erro_sintatico == 0) {
         printf("Analise sintatica realizada com sucesso.\n");
     }
+    else {
+    	printf("Análise sintática encontrou erro(s).\n");
+    }
 
     if (erro_lexico == 0) {
         printf("Analise lexica realizada com sucesso.\n");
+    }
+    else {
+    	printf("Análise lexica encontrou erro(s).\n");
     }
 
     /* Fechar o arquivo */

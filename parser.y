@@ -16,17 +16,14 @@ void yyerror(const char *s);
 %token OPEN_PARENTHESES CLOSE_PARENTHESES
 %token OPEN_BRACES CLOSE_BRACES
 
-/* Precedencia dos Operadores Logicos*/
-
+/* Precedencia Menor -> Maior*/
 %left OR
 %left AND
-%right NOT
-
-/* Precedecia dos Operadores Aritimeticos*/
-
+%left EE NE
+%left LT GT LE GE
 %left PLUS MINUS
 %left MULT DIV MOD
-%right UMINUS
+%right NOT UMINUS
 
 %%
 
@@ -54,18 +51,18 @@ comando : decl
 
 
 
-/* Declaracoes e atribuicoes */
+/* Declaracoes e atribuições */
 
 decl : type ID list_decl SEMI
      ;
 
 list_decl : /* vazio */
-          | ATTRIBUTION expr_ari
-          | ATTRIBUTION expr_ari COMMA ID list_decl
+          | ATTRIBUTION expr
+          | ATTRIBUTION expr COMMA ID list_decl
           | COMMA ID list_decl
           ;
 
-atrib : ID ATTRIBUTION expr_ari SEMI
+atrib : ID ATTRIBUTION expr SEMI
       ;
 
 /* Valores usados nas atribuicoes */
@@ -78,24 +75,26 @@ operando : ID
 
 /* Condicionais IF e ELSE */
 
-cond : IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES bloco_sep
+cond : IF OPEN_PARENTHESES expr CLOSE_PARENTHESES bloco_sep
+     /*IF com ELSE IF*/
+     | IF OPEN_PARENTHESES expr CLOSE_PARENTHESES bloco_sep ELSE cond
      /* IF e ELSE casado */
-     | IF OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES bloco_sep ELSE bloco_sep
+     | IF OPEN_PARENTHESES expr CLOSE_PARENTHESES bloco_sep ELSE bloco_sep
      ;
 
 
 /* Loop while */
-loop : WHILE OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES OPEN_BRACES bloco CLOSE_BRACES
+loop : WHILE OPEN_PARENTHESES expr CLOSE_PARENTHESES bloco_sep
      ;
 
 /* Print */
 
-print : PRINT OPEN_PARENTHESES expr_ari CLOSE_PARENTHESES SEMI
+print : PRINT OPEN_PARENTHESES expr CLOSE_PARENTHESES SEMI
       ;
 
 /* Read */
 
-read : READ OPEN_PARENTHESES expr_ari CLOSE_PARENTHESES SEMI
+read : READ OPEN_PARENTHESES ID CLOSE_PARENTHESES SEMI
      ;
 
 /* bloco de chaves separado */
@@ -103,38 +102,29 @@ read : READ OPEN_PARENTHESES expr_ari CLOSE_PARENTHESES SEMI
 bloco_sep : OPEN_BRACES bloco CLOSE_BRACES
           ;
 
-/* EXPRESSÕES CONDICIONAIS servem para a definir as condições no IF/ELSE E WHILE */
-
-expr_cond : expr_cond OR expr_cond
-          | expr_cond AND expr_cond
-          | NOT expr_cond
-          | OPEN_PARENTHESES expr_cond CLOSE_PARENTHESES
-	  /* Comparação entre calculos aritimeticos EX: (1+x >= 4-y) */
-          | expr_ari relop expr_ari
-          ;
-
-/* Aritimetica */
-
-expr_ari : expr_ari PLUS expr_ari
-     	| expr_ari MINUS expr_ari
-     	| expr_ari MULT expr_ari
-     	| expr_ari DIV expr_ari
-     	| expr_ari MOD expr_ari
-     	| MINUS expr_ari %prec UMINUS
-     	| OPEN_PARENTHESES expr_ari CLOSE_PARENTHESES
-     	| operando
-     	;
-
-
-
-/* Operadores Relacionais */
-relop : GT
-      | LT
-      | GE
-      | LE
-      | EE
-      | NE
-      ;
+/*EXPRESSÕES*/
+expr : expr OR expr /* Operadores Logicos AND/OR*/
+     | expr AND expr
+     /*EXPRESSÕES RELACIONAIS*/
+     | expr EE expr
+     | expr NE expr
+     | expr LT expr
+     | expr GT expr
+     | expr LE expr
+     | expr GE expr
+     /*EXPRESSÕES ARITIMETICAS*/
+     | expr PLUS expr
+     | expr MINUS expr
+     | expr MULT expr
+     | expr DIV expr
+     | expr MOD expr
+     /* Menor precedencia NOT/ MINUS*/
+     | NOT expr
+     | MINUS expr %prec UMINUS
+     /* Parenteses */
+     | OPEN_PARENTHESES expr CLOSE_PARENTHESES
+     /* Valores que podem ser substituidos nas expressões*/
+     | operando ;
 
 type : INT | FLOAT
      ;
