@@ -65,7 +65,7 @@ list_decl : /* vazio */
 atrib : ID ATTRIBUTION expr SEMI
       ;
 
-/* Valores usados nas atribuicoes */
+/* Valores usados nas atribuicoes e expressões*/
 
 operando : ID 
 	 | INT_NUMBER 
@@ -87,7 +87,7 @@ cond : IF OPEN_PARENTHESES expr CLOSE_PARENTHESES bloco_sep
 loop : WHILE OPEN_PARENTHESES expr CLOSE_PARENTHESES bloco_sep
      ;
 
-/* Print */
+/* Print precisa obrigatoria mente de um argumento*/
 
 print : PRINT OPEN_PARENTHESES expr CLOSE_PARENTHESES SEMI
       ;
